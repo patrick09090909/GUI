@@ -1,0 +1,122 @@
+import random
+import tkinter
+from tkinter import messagebox
+
+def play_game():
+    # List of words to guess from
+    words = ["python", "java", "ruby", "javascript", "php"]
+
+    # Function to choose a random word
+    def choose_word():
+        return random.choice(words)
+
+    # Function to update the word display
+    def update_word_display():
+        word_display = ""
+        for letter in word:
+            if letter in guessed_letters:
+                word_display += letter + " "
+            else:
+                word_display += "_ "
+        word_label.config(text=word_display)
+
+    # Function to handle button click
+    def handle_guess():
+        nonlocal remaining_guesses
+        nonlocal guessed_letters
+
+        # Get the letter guessed
+        letter = guess_entry.get()
+
+        # Clear the guess entry
+        guess_entry.delete(0, tkinter.END)
+
+        # Check if the letter has already been guessed
+        if letter in guessed_letters:
+            return
+
+        # Add the letter to the list of guessed letters
+        guessed_letters.append(letter)
+
+        # Update the word display
+        update_word_display()
+
+        # Check if the letter is in the word
+        if letter not in word:
+            remaining_guesses -= 1
+            remaining_guesses_label.config(text=remaining_guesses)
+
+            if remaining_guesses == 0:
+                tkinter.messagebox.showinfo("Hangman", "You lose! The word was " + word)
+                play_window.destroy()
+
+        else:
+            if "_" not in word_label.cget("text"):
+                tkinter.messagebox.showinfo("Hangman", "You win!")
+                play_window.destroy()
+
+    # Initialize the game
+    word = choose_word()
+    guessed_letters = []
+    remaining_guesses = 10
+
+    # Create the GUI
+    word_label = tkinter.Label(play_window, text="_ " * len(word), bg='#FFFFDE', fg='#000000', font=("Comic Sans MS", 20), padx=10, pady=10, borderwidth=2, relief="solid")
+    word_label.pack()
+
+    guess_label = tkinter.Label(play_window, text="Guess a letter:", bg='#FFFFDE', fg='#000000', font=("Comic Sans MS", 16), pady=10)
+    guess_label.pack()
+
+    guess_entry = tkinter.Entry(play_window, bg='#FFFFDE', fg="#000000", font=("Comic Sans MS", 16), bd=2, relief="solid")
+    guess_entry.pack()
+
+    guess_button = tkinter.Button(play_window, text="Guess", command=handle_guess, bg='#FFFFDE', fg='#000000', font=("Comic Sans MS", 16), padx=10, pady=5)
+    guess_button.pack()
+
+    remaining_guesses_label = tkinter.Label(play_window, text=remaining_guesses, bg='#FFFFDE', fg='#000000', font=("Comic Sans MS", 16), pady=10, width=8, height=1)
+    remaining_guesses_label.pack()
+
+def login():
+    username = "patricksolis"
+    password = "090909"
+    if username_entry.get() == username and password_entry.get() == password:
+        messagebox.showinfo(title="Login Success", message="You successfully logged in.")
+        window.destroy()  # close login window
+
+        # Create a new window for playing Hangman
+        global play_window
+        play_window = tkinter.Tk()
+        play_window.title("Hangman")
+        play_window.geometry("700x400")
+        play_window.configure(bg='#4E7B10')  # Set the background color
+        play_game()
+        play_window.mainloop()
+    else:
+        messagebox.showerror(title="Error", message="Invalid login.")
+
+# Create the main window
+window = tkinter.Tk()
+window.title("Login form")
+window.geometry('700x400')
+window.configure(bg='#FFFFDE')
+
+# Create the login frame
+frame = tkinter.Frame(window, bg='#FFFFDE', borderwidth=2, relief="groove")
+
+# Creating widgets
+login_label = tkinter.Label(frame, text="Login", bg='#FFFFDE', fg="#4E7B10", font=("Comic Sans MS", 30))
+username_label = tkinter.Label(frame, text="Username", bg='#4E7B10', fg="#FFFFFF", font=("Comic Sans MS", 16), borderwidth=2, relief="solid", padx=5, pady=5)
+username_entry = tkinter.Entry(frame, font=("Chalkduster", 16), bg='#FFFFDE', fg="#4E7B10", bd=2, relief="solid")
+password_entry = tkinter.Entry(frame, show="*", font=("Arial", 16), bg='#FFFFDE', fg="#4E7B10", bd=2, relief="solid")
+password_label = tkinter.Label(frame, text="Password", bg='#4E7B10', fg="#FFFFFF", font=("Comic Sans MS", 16), borderwidth=2, relief="solid", padx=5, pady=5)
+play_button = tkinter.Button(frame, text="Play Hangman", bg="#4E7B10", fg="#FFFFFF", font=("Comic Sans MS", 16), command=login, relief="groove", borderwidth=3, padx=10, pady=5)
+
+login_label.grid(row=0, column=0, columnspan=2, sticky="news", pady=40)
+username_label.grid(row=1, column=0)
+username_entry.grid(row=1, column=1, pady=20)
+password_label.grid(row=2, column=0)
+password_entry.grid(row=2, column=1, pady=20)
+play_button.grid(row=4, column=0, columnspan=2, pady=10)
+
+frame.pack()
+window.mainloop()
